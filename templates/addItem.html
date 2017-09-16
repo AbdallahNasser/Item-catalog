@@ -1,0 +1,44 @@
+{% extends "main.html" %}
+{% block content %}
+<div class="card card-section item-info-card">
+    <div class="row banner menu">
+        <div class="col-md-12 padding-none">
+            <h1>Add new Item</h1>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 padding-top">
+            <form method = "post" action="#">
+                <div class="form-group">
+                    <label for="name">Item Name:</label>
+                    <input type ="text" maxlength="100" class="form-control" name="name" placeholder="Name of the item">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" maxlength="250" rows="3" name="description" placeholder="Description of the item"></textarea>
+                    <div class="form-group">
+                        <label for="catalog">Category:</label>
+                        <select class="form-control" name="catalog">
+                            {% for catalog in catalogs %}
+                                {% if item and item.catalog.name == catalog.name %} 
+                                <option id="{{catalog.id}}" value="{{catalog.name}}" selected>{{catalog.name}}</option>
+                                {% else %}
+                                <option id="{{catalog.id}}" value="{{catalog.name}}">{{catalog.name}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success" id="submit" type="submit">
+                        Create
+                    </button>
+                    <button class="btn btn-default delete">
+                        <a href = "{{ url_for('showCatalogs') }}">
+                            Cancel
+                        </a>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

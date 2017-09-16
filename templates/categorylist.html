@@ -1,0 +1,18 @@
+<div class="col-md-3">
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Available Categories</h2>
+		</div>
+	</div>
+	<ul class="list-group">
+		{% for catalog in catalogs %}
+		<li class="list-group-item">
+			<div class="row">
+				<div class="col-md-12">
+					<a href="{{ url_for('showCatalogItems',catalog_name = catalog.name,catalog_id = catalog.id)}}">{{ catalog.name }}</a>
+				</div>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+</div>

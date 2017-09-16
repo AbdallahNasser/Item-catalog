@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "flashalert.html" %}
+{% include "categorylist.html" %}
+{% include "itemslist.html" %}
+<div class="text-right col-md-12">
+	<a href="{{url_for('addItem')}}">
+		<button class="btn btn-primary">
+			Add item
+		</button>
+	</a>
+</div>
+{% endblock %}

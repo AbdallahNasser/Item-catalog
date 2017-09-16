@@ -1,0 +1,53 @@
+<div class="col-md-9">
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Latest Items</h2>
+		</div>
+	</div>
+	<ul class="list-group">
+	{% if items and quantity > 0 %}
+	    {% for item in items %}
+		    <li class="list-group-item">
+				<div class="row">
+					<div class="col-md-12">
+					<!-- <img class="img-thumbnail pull-left" src="http://placehold.it/150" alt="image placeholder" /> -->
+						<span class="name">
+							<a href="{{ url_for('showItemDetails',catalog_name = item.catalog.name,item_id = item.id)}}" >
+								<h3>{{item.name}}</a><br><small>({{ item.catalog.name }})</small>
+									{% if item.user_id == session.user_id %}
+										<div class="editdeletepane pull-right">
+											<a href="{{ url_for('editItem', item_id = item.id, catalog_id= item.catalog_id) }}">
+												<button class="btn btn-warning edit">
+													<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> 
+														Edit
+												</button>
+											</a>
+											<a href="{{ url_for('deleteItem', item_id = item.id, catalog_id = item.catalog_id) }}">
+												<button class="btn btn-danger delete">
+													<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> 
+														Delete
+												</button>
+											</a>
+										</div>
+									{% endif %}
+								</h3>
+							</a>
+						</span>
+						{% if creator %}
+							<div>
+								Created By:  {{ creator.email }}
+							</div>
+						{% endif %}		
+					</div>
+				</div>
+		    </li>
+	    {% endfor %}
+	</ul>
+	{% else %}
+	<ul>
+	    <li class="list-group-item">
+	        You currently have no menu items.
+	    </li>
+	</ul>
+	{% endif %}
+</div>
