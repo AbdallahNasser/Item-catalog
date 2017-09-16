@@ -1,11 +1,15 @@
 """
 This code is simple backend for catalog website
-Created by Ali Dabour on 4/2017
-I wrote this code while learning Full Stack Nanodegree @udacity.com
 """
 
 from database_setup import Base, CatalogItem, Catalog, User
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash  # noqa
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   jsonify,
+                   url_for,
+                   flash)
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from flask import session as login_session
@@ -108,8 +112,10 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'),
+            200
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -142,13 +148,11 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+    '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
-
-
-
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -160,29 +164,29 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (  # NOQA
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
-
     # Use token to get user info from API
     userinfo_url = "https://graph.facebook.com/v2.8/me"
     '''
-        Due to the formatting for the result from the server token exchange we have to
-        split the token first on commas and select the first index which gives us the key : value
-        for the server access token then we split it on colons to pull out the actual token value
-        and replace the remaining quotes with nothing so that it can be used directly in the graph
+        Due to the formatting for the result from the server token
+        exchange we have to split the token first on commas and
+        select the first index which gives us the key : value
+        for the server access token then we split it on colons
+        to pull out the actual token value and replace the remaining
+        quotes with nothing so that it can be used directly in the graph
         api calls
     '''
     token = result.split(',')[0].split(':')[1].replace('"', '')
 
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token  # NOQA
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
@@ -197,7 +201,7 @@ def fbconnect():
     login_session['access_token'] = token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token  # NOQA
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -217,11 +221,11 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
+    '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
-
 
 
 # User Helper Functions
@@ -267,7 +271,7 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)  # NOQA
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -296,13 +300,14 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps(
+            'Failed to revoke token for given user.',
+            400)
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
 
 
-
-    
 @app.route('/disconnect')
 def disconnect():
     """
@@ -311,13 +316,11 @@ def disconnect():
     """
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
-            gdisconnect()
             if 'gplus_id' in login_session:
                 del login_session['gplus_id']
             if 'credentials' in login_session:
                 del login_session['credentials']
         if login_session['provider'] == 'facebook':
-            fbdisconnect()
             del login_session['facebook_id']
             if 'username' in login_session:
                 del login_session['username']
@@ -366,7 +369,8 @@ def showCatalogItems(catalog_name):
     catalogs = session.query(Catalog).order_by(asc(Catalog.name))
     # query catalog for the catalog name passed
     catalog = session.query(Catalog).filter_by(name=catalog_name).one()
-    items = session.query(CatalogItem).filter_by(catalog_id=catalog.id).order_by(asc(CatalogItem.name))
+    items = session.query(CatalogItem).filter_by(
+        catalog_id=catalog.id).order_by(asc(CatalogItem.name))
     quantity = items.count()
     if 'username' not in login_session:
         return render_template(
@@ -392,15 +396,25 @@ def showItemDetails(catalog_name, item_id):
     item = session.query(CatalogItem).filter_by(id=item_id).one()
     catalogs = item.catalog_id
     if 'username' not in login_session:
-        return render_template('itemdetailsPublic.html', item_name=item.name, item_description=item.description)
+        return render_template('itemdetailsPublic.html',
+                               item_name=item.name,
+                               item_description=item.description
+                               )
     if item.user_id != login_session['user_id']:
-        return render_template('itemdetailsPublic.html', item_name=item.name, item_description=item.description)
+        return render_template('itemdetailsPublic.html',
+                               item_name=item.name,
+                               item_description=item.description
+                               )
     else:
-        return render_template('itemdetails.html', item=item, catalogs=catalogs)
+        return render_template('itemdetails.html',
+                               item=item,
+                               catalogs=catalogs
+                               )
 
 
 # edit catalog item if the user is login and user_id = item.user_id
-@app.route('/catalog/<int:catalog_id>/<string:item_id>/edit/', methods=['GET', 'POST'])
+@app.route('/catalog/<int:catalog_id>/<string:item_id>/edit/',
+           methods=['GET', 'POST'])
 @login_required
 def editItem(item_id, catalog_id):
     item = session.query(CatalogItem).filter_by(id=item_id).one()
@@ -412,8 +426,6 @@ def editItem(item_id, catalog_id):
         if request.form['description']:
             item.description = request.form['description']
         if request.form['catalog']:
-            # catalog = session.query(Catalog).filter_by(name=request.form['catalog']).one()
-            # item.catalog = request.form['catalog']
             item.catalog_id = catalog_id
         session.add(item)
         session.commit()
@@ -425,7 +437,8 @@ def editItem(item_id, catalog_id):
 
 
 # delete item
-@app.route('/catalog/<int:catalog_id>/<string:item_id>/delete/', methods=['GET', 'POST'])
+@app.route('/catalog/<int:catalog_id>/<string:item_id>/delete/',
+           methods=['GET', 'POST'])
 @login_required
 def deleteItem(item_id, catalog_id):
     item = session.query(CatalogItem).filter_by(id=item_id).one()
@@ -447,9 +460,14 @@ def deleteItem(item_id, catalog_id):
 def addItem():
     if request.method == 'POST':
         if request.form['catalog']:
-            catalog = session.query(Catalog).filter_by(name=request.form['catalog']).one()
-        newItem = CatalogItem(name=request.form['name'], description=request.form['description'], catalog_id=catalog.id,
-                              user_id=login_session['user_id'])
+            catalog = session.query(Catalog).filter_by(
+                name=request.form['catalog']).one()
+        newItem = CatalogItem(
+            name=request.form['name'],
+            description=request.form['description'],
+            catalog_id=catalog.id,
+            user_id=login_session['user_id']
+        )
         session.add(newItem)
         session.commit()
         return redirect(url_for('showCatalogs'))
@@ -464,7 +482,8 @@ def catalogJSON():
     catalog_json = []
     catalogs = session.query(Catalog).all()
     for catalog in catalogs:
-        items = session.query(CatalogItem).filter_by(catalog_id=catalog.id).all()
+        items = session.query(CatalogItem).filter_by(
+            catalog_id=catalog.id).all()
         items_list = []
         for item in items:
             item_data = {
